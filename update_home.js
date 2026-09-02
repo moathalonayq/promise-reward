@@ -1,4 +1,4 @@
-﻿const fs = require("fs");
+const fs = require("fs");
 let code = fs.readFileSync("views/home.ejs", "utf8");
 
 let tableHtml = `    <!-- Schedule Table Start -->
@@ -23,7 +23,7 @@ let tableHtml = `    <!-- Schedule Table Start -->
         </thead>
         <tbody style="color: black; font-weight: bold; font-size: 18px;">
           <tr>
-            <td style="border: 1px solid black; padding: 12px;">الخميس<br><span style="margin-top: 5px; display: inline-block;">21/3</span></td>
+            <td style="border: 1px solid black; padding: 12px;">الخميس<br><span style="margin-top: 5px; display: inline-block;">3/21</span></td>
             <td style="border: 1px solid black; padding: 12px;"></td>
             <td style="border: 1px solid black; padding: 12px;">شرح<br>البرامج</td>
             <td style="border: 1px solid black; padding: 12px;">-</td>
@@ -34,24 +34,24 @@ let tableHtml = `    <!-- Schedule Table Start -->
             <td style="border: 1px solid black; padding: 0;">
               <table style="width: 100%; height: 100%; border-collapse: collapse; margin: 0; background: transparent;">
                 <tr>
-                  <td style="width: 50%; border-left: 1px solid black; border-bottom: 1px solid black; padding: 12px;">قصة موسى</td>
-                  <td style="width: 50%; border-bottom: 1px solid black; padding: 12px;">الزكري</td>
+                  <td style="width: 50%; border-left: 1px solid black; border-bottom: 1px solid black; padding: 12px;">عاصم<br>المهيزع</td>
+                  <td style="width: 50%; border-bottom: 1px solid black; padding: 12px;">قصة موسى</td>
                 </tr>
                 <tr>
-                  <td style="width: 50%; border-left: 1px solid black; padding: 12px;">قصة يوسف</td>
-                  <td style="width: 50%; padding: 12px;">الخلف</td>
+                  <td style="width: 50%; border-left: 1px solid black; padding: 12px;">بدر<br>الغدير</td>
+                  <td style="width: 50%; padding: 12px;">قصة يوسف</td>
                 </tr>
               </table>
             </td>
             <td style="border: 1px solid black; padding: 0;">
               <table style="width: 100%; height: 100%; border-collapse: collapse; margin: 0; background: transparent;">
                 <tr>
-                  <td style="width: 40%; padding: 12px; vertical-align: middle;">الغاية من<br>الخلق</td>
-                  <td style="width: 60%; padding: 12px; vertical-align: middle;">أسامة المهنا</td>
+                  <td style="width: 50%; border-left: 1px solid black; padding: 12px; vertical-align: middle;">الغاية من<br>الخلق</td>
+                  <td style="width: 50%; padding: 12px; vertical-align: middle;">---</td>
                 </tr>
               </table>
             </td>
-            <td style="border: 1px solid black; padding: 12px;">مجموعة أبو<br>خالد المقرن</td>
+            <td style="border: 1px solid black; padding: 12px;">مجموعة أبو<br>عبدالرحمن<br>السحيم</td>
           </tr>
         </tbody>
       </table>
@@ -60,7 +60,7 @@ let tableHtml = `    <!-- Schedule Table Start -->
 
 `;
 
-code = code.replace("<section class=\\"app-section active\\">", "<section class=\\"app-section active\\">\n\n" + tableHtml);
+code = code.replace("<section class=\\"app - section active\\">", "<section class=\\"app - section active\\">\n\n" + tableHtml);
 
 fs.writeFileSync("views/home.ejs", code);
 console.log("Updated views/home.ejs");

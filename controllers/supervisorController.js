@@ -254,10 +254,8 @@ async function addPoints(req, res, next) {
     const studentIdNum = Number(studentId);
     let amountNum = Number(amount);
 
-    // عدد النقاط محدود بقيم ثابتة (5 إلى 40) لكل من الإدارة والمشرفين
-    const ALLOWED_AMOUNTS = [5, 10, 15, 20, 25, 30, 35, 40];
-    if (!studentIdNum || !ALLOWED_AMOUNTS.includes(amountNum)) {
-      return res.status(400).json({ success: false, message: "أدخل بيانات صحيحة" });
+    if (!studentIdNum || isNaN(amountNum) || amountNum <= 0) {
+      return res.status(400).json({ success: false, message: "أدخل بيانات صحيحة ومقدار نقاط صالح" });
     }
 
     // دور "المشرفين" المحدود: مبادرة فقط

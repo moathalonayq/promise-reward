@@ -121,6 +121,15 @@ const pool = require("./config/db");
   } catch (err) {
     console.error("Auto-migration sessions error:", err);
   }
+
+  try {
+    await pool.query("ALTER TABLE sessions ADD COLUMN points INT DEFAULT 15");
+    console.log("Auto-migration: Added points column to sessions table");
+  } catch (err) {
+    if (err.code !== 'ER_DUP_FIELDNAME') {
+      console.error("Auto-migration sessions points error:", err);
+    }
+  }
 })();
 
 app.set("trust proxy", 1);

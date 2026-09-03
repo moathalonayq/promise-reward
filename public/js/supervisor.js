@@ -1,4 +1,4 @@
-/* =========================================================
+﻿/* =========================================================
    public/js/supervisor.js
    منطق لوحة المشرفين:
    - إضافة / خصم نقاط (AJAX)
@@ -1002,3 +1002,51 @@ function printSingleBarcode(student) {
   };
   win.document.body.appendChild(script);
 }
+
+  
+  // Session Points Logic
+  const sessionPointsSessionId = document.getElementById("sessionPointsSessionId");
+  const sessionPointsAmount = document.getElementById("sessionPointsAmount");
+  const sessionPointsForm = document.getElementById("sessionPointsForm");
+  
+  if (sessionPointsSessionId && sessionPointsAmount && sessionPointsForm) {
+    sessionPointsSessionId.addEventListener("change", (e) => {
+      const selected = e.target.options[e.target.selectedIndex];
+      if (selected.value) {
+        sessionPointsAmount.value = selected.dataset.points;
+      } else {
+        sessionPointsAmount.value = "";
+      }
+    });
+
+    sessionPointsForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("sessionPointsMsg");
+      const sessionId = sessionPointsSessionId.value;
+      const points = sessionPointsAmount.value;
+      if (!sessionId || points === "") {
+        showMsg(msg, "الرجاء اختيار الجلسة وتحديد النقاط", "error");
+        return;
+      }
+      const btn = document.getElementById("saveSessionPointsBtn");
+      btn.disabled = true;
+      try {
+        const res = await fetch("/api/supervisor/session-points", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId, points })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showMsg(msg, data.message, "success");
+          const opt = sessionPointsSessionId.options[sessionPointsSessionId.selectedIndex];
+          opt.dataset.points = points;
+        } else {
+          showMsg(msg, data.message || "حدث خطأ", "error");
+        }
+      } catch (err) {
+        showMsg(msg, "خطأ في الاتصال", "error");
+      }
+      btn.disabled = false;
+    });
+  }

@@ -139,6 +139,7 @@ CREATE TABLE sessions (
   session_date DATE NOT NULL UNIQUE,
   day_name VARCHAR(20) NOT NULL,
   week_number INT NOT NULL,
+  points INT DEFAULT 15,
   INDEX idx_sessions_date (session_date)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 INSERT INTO sessions (session_date, day_name, week_number)

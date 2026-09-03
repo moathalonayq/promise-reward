@@ -634,12 +634,27 @@ async function updateCategoryPoints(req, res, next) {
   try {
     const { studentId, category, points } = req.body;
     await studentModel.updateCategoryPoints(studentId, category, points);
-    res.json({ success: true });
+    res.json({ success: true, message: "تم التحديث" });
   } catch (err) {
     next(err);
   }
 }
 module.exports.updateCategoryPoints = updateCategoryPoints;
+
+module.exports.updateSessionPoints = async (req, res, next) => {
+  try {
+    const pool = require("../config/db");
+    const { sessionId, points } = req.body;
+    const pts = parseInt(points, 10);
+    if (!sessionId || isNaN(pts) || pts < 0) {
+      return res.status(400).json({ success: false, message: "بيانات غير صالحة" });
+    }
+    await pool.query("UPDATE sessions SET points = ? WHERE id = ?", [pts, sessionId]);
+    res.json({ success: true, message: "تم تحديث نقاط الجلسة بنجاح" });
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports.updateMegaGroupPoints = async (req, res) => {
   try {

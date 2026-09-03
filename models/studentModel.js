@@ -200,27 +200,32 @@ async function addPointsToStudent(studentId, program, amount, category) {
 }
 
 /* -------- تسجيل حضور لجلسة محددة (يدوي من المشرف، تلقائي عبر الباركود، أو ذاتي من الطالب) --------
-   كل حضور "حاضر" أو "متأخر" يمنح 15 نقطة حضور. المنطق هنا يقارن الحالة
-   السابقة بالجديدة حتى لا تُضاف/تُخصم النقاط أكثر من مرة عند إعادة تسجيل
-   نفس الحالة أو التبديل بين "حاضر" و"متأخر". */
+   المنطق هنا يقارن الحالة السابقة بالجديدة حتى لا تُضاف/تُخصم النقاط أكثر من مرة
+   عند إعادة تسجيل نفس الحالة أو التبديل بين "حاضر" و"متأخر". */
 async function markAttendance(studentId, status, sessionId) {
-  const ATTENDANCE_POINTS = 15;
   const PRESENT_STATUSES = ["حاضر", "متأخر"];
 
-  const [prevRows] = await pool.query(
+  const [sessionRows] = await pool.query("SELECT points FROM sessions WHERE id = ?", [sessionId]);
+  const ATTENDANCE_POINTS = (sessionRows[0] && sessionRows[0].points != null) ? sessionRows[0].points : 15;
+
+  const [rows] = await pool.query(
     "SELECT status FROM attendance WHERE student_id = ? AND session_id = ?",
     [studentId, sessionId]
   );
-  const prevStatus = prevRows[0] ? prevRows[0].status : null;
+  const wasPresent = rows.length > 0 && PRESENT_STATUSES.includes(rows[0].status);
+  
+  if (rows.length === 0) {
+    await pool.query(
+      "INSERT INTO attendance (student_id, session_id, status) VALUES (?, ?, ?)",
+      [studentId, sessionId, status]
+    );
+  } else {
+    await pool.query(
+      "UPDATE attendance SET status = ? WHERE student_id = ? AND session_id = ?",
+      [status, studentId, sessionId]
+    );
+  }
 
-  await pool.query(
-    `INSERT INTO attendance (student_id, session_id, status)
-     VALUES (?, ?, ?)
-     ON DUPLICATE KEY UPDATE status = VALUES(status)`,
-    [studentId, sessionId, status]
-  );
-
-  const wasPresent = PRESENT_STATUSES.includes(prevStatus);
   const isPresent = PRESENT_STATUSES.includes(status);
   if (wasPresent !== isPresent) {
     const delta = isPresent ? ATTENDANCE_POINTS : -ATTENDANCE_POINTS;
@@ -229,15 +234,15 @@ async function markAttendance(studentId, status, sessionId) {
       [delta, studentId]
     );
   }
-
-  const [rows] = await pool.query(
+  
+  const [resRows] = await pool.query(
     `SELECT att.id, att.status, sess.id AS session_id, sess.session_date, sess.day_name, sess.week_number
      FROM attendance att
      JOIN sessions sess ON sess.id = att.session_id
      WHERE att.student_id = ? AND att.session_id = ?`,
     [studentId, sessionId]
   );
-  return rows[0];
+  return resRows[0];
 }
 
 /* -------- هل تم تسجيل حضور الطالب لجلسة معينة بالفعل؟ -------- */

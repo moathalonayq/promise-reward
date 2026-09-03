@@ -10,7 +10,7 @@ const pool = require("../config/db");
 /* -------- كل الجلسات التسع مرتبة زمنياً -------- */
 async function getAllSessions() {
   const [rows] = await pool.query(
-    "SELECT id, session_date, day_name, week_number FROM sessions ORDER BY session_date ASC"
+    "SELECT id, session_date, day_name, week_number, points FROM sessions ORDER BY session_date ASC"
   );
   return rows;
 }

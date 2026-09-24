@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    public/js/supervisor.js
    منطق لوحة المشرفين:
    - إضافة / خصم نقاط (AJAX)
@@ -1004,28 +1004,17 @@ function printSingleBarcode(student) {
 }
 
   
-  // Session Points Logic
-  const sessionPointsSessionId = document.getElementById("sessionPointsSessionId");
+  // Attendance Points Logic (All Days)
   const sessionPointsAmount = document.getElementById("sessionPointsAmount");
   const sessionPointsForm = document.getElementById("sessionPointsForm");
   
-  if (sessionPointsSessionId && sessionPointsAmount && sessionPointsForm) {
-    sessionPointsSessionId.addEventListener("change", (e) => {
-      const selected = e.target.options[e.target.selectedIndex];
-      if (selected.value) {
-        sessionPointsAmount.value = selected.dataset.points;
-      } else {
-        sessionPointsAmount.value = "";
-      }
-    });
-
+  if (sessionPointsAmount && sessionPointsForm) {
     sessionPointsForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const msg = document.getElementById("sessionPointsMsg");
-      const sessionId = sessionPointsSessionId.value;
       const points = sessionPointsAmount.value;
-      if (!sessionId || points === "") {
-        showMsg(msg, "الرجاء اختيار الجلسة وتحديد النقاط", "error");
+      if (points === "") {
+        showMsg(msg, "الرجاء تحديد عدد النقاط", "error");
         return;
       }
       const btn = document.getElementById("saveSessionPointsBtn");
@@ -1034,13 +1023,11 @@ function printSingleBarcode(student) {
         const res = await fetch("/api/supervisor/session-points", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId, points })
+          body: JSON.stringify({ points })
         });
         const data = await res.json();
         if (data.success) {
-          showMsg(msg, data.message, "success");
-          const opt = sessionPointsSessionId.options[sessionPointsSessionId.selectedIndex];
-          opt.dataset.points = points;
+          showMsg(msg, data.message || "تم حفظ وتطبيق نقاط الحضور على جميع الأيام بنجاح", "success");
         } else {
           showMsg(msg, data.message || "حدث خطأ", "error");
         }

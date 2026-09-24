@@ -206,14 +206,18 @@ async function markAttendance(studentId, status, sessionId) {
   const PRESENT_STATUSES = ["حاضر", "متأخر"];
 
   const [sessionRows] = await pool.query("SELECT points FROM sessions WHERE id = ?", [sessionId]);
-  const ATTENDANCE_POINTS = (sessionRows[0] && sessionRows[0].points != null) ? sessionRows[0].points : 15;
+  let ATTENDANCE_POINTS = (sessionRows[0] && sessionRows[0].points != null) ? sessionRows[0].points : null;
+  if (ATTENDANCE_POINTS == null) {
+    const [attSettings] = await pool.query("SELECT value FROM settings WHERE `key` = 'attendance_points'");
+    ATTENDANCE_POINTS = attSettings.length > 0 ? (parseInt(attSettings[0].value, 10) || 15) : 15;
+  }
 
   const [rows] = await pool.query(
     "SELECT status FROM attendance WHERE student_id = ? AND session_id = ?",
     [studentId, sessionId]
   );
   const wasPresent = rows.length > 0 && PRESENT_STATUSES.includes(rows[0].status);
-  
+
   if (rows.length === 0) {
     await pool.query(
       "INSERT INTO attendance (student_id, session_id, status) VALUES (?, ?, ?)",
@@ -234,7 +238,7 @@ async function markAttendance(studentId, status, sessionId) {
       [delta, studentId]
     );
   }
-  
+
   const [resRows] = await pool.query(
     `SELECT att.id, att.status, sess.id AS session_id, sess.session_date, sess.day_name, sess.week_number
      FROM attendance att
@@ -279,12 +283,12 @@ async function setSelfAchievementDone(studentId, taskId, done) {
     // Calculate the current week number (Week 1 starts on Sep 10, Week 2 on Sep 17, etc.)
     const diffTime = Math.max(0, now.getTime() - programStartDate.getTime());
     const currentWeekNumber = Math.floor(diffTime / (7 * 24 * 60 * 60 * 1000)) + 1;
-    
+
     let awardedPoints = task.points;
     if (task.week_number < currentWeekNumber) {
       awardedPoints = Math.round(task.points / 2);
     }
-    
+
     await pool.query(
       "INSERT INTO self_achievements (student_id, task_id, points) VALUES (?, ?, ?)",
       [studentId, taskId, awardedPoints]
@@ -305,7 +309,7 @@ async function setSelfAchievementDone(studentId, taskId, done) {
   return task;
 }
 
-  /* -------- إضافة متطلب ذاتي جديد لأسبوع معين -------- */
+/* -------- إضافة متطلب ذاتي جديد لأسبوع معين -------- */
 async function addSelfTask(weekNumber, title, points) {
   const [result] = await pool.query(
     "INSERT INTO weekly_self_tasks (week_number, title, points) VALUES (?, ?, ?)",

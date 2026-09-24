@@ -207,27 +207,16 @@
         <p class="form-msg" id="taskConfigMsg"></p>
       </div>
 
-      <!-- إعداد نقاط حضور الجلسات -->
+      <!-- إعداد نقاط حضور الجلسات لجميع الأيام -->
       <div class="panel-box" style="margin-bottom:18px;">
-        <h4 style="margin-top:0;">⚙️ ضبط نقاط الحضور للجلسات</h4>
-        <p class="section-desc" style="margin-bottom:12px; font-size:13px;">تحديد كمية نقاط الحضور لكل جلسة (الافتراضي 15)</p>
+        <h4 style="margin-top:0;">⚙️ ضبط نقاط الحضور (لكل الأيام)</h4>
+        <p class="section-desc" style="margin-bottom:12px; font-size:13px;">تحديد كمية نقاط الحضور لكل جلسة، وتُطبق بشكل موحد على جميع أيام النادي.</p>
         <form id="sessionPointsForm">
           <div class="form-group">
-            <label for="sessionPointsSessionId">اختر الجلسة</label>
-            <select id="sessionPointsSessionId" class="form-select" required>
-              <option value="">اختر الجلسة...</option>
-              <% sessions.forEach(sess => { %>
-                <option value="<%= sess.id %>" data-points="<%= sess.points != null ? sess.points : 15 %>">
-                  الأسبوع <%= sess.week_number %> — <%= sess.day_name %> (<%= sess.session_date %>)
-                </option>
-              <% }) %>
-            </select>
+            <label for="sessionPointsAmount">كمية نقاط الحضور لكل يوم</label>
+            <input type="number" id="sessionPointsAmount" class="form-input" min="0" value="<%= typeof attendancePoints !== 'undefined' ? attendancePoints : 15 %>" placeholder="أدخل عدد النقاط (مثلاً: 15)" required>
           </div>
-          <div class="form-group">
-            <label for="sessionPointsAmount">نقاط الحضور</label>
-            <input type="number" id="sessionPointsAmount" class="form-input" min="0" placeholder="أدخل عدد النقاط" required>
-          </div>
-          <button type="submit" id="saveSessionPointsBtn" class="btn btn-primary" style="width:100%;">حفظ النقاط</button>
+          <button type="submit" id="saveSessionPointsBtn" class="btn btn-primary" style="width:100%;">حفظ وتطبيق على جميع الأيام</button>
           <p class="form-msg" id="sessionPointsMsg"></p>
         </form>
       </div>

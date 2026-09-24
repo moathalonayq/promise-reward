@@ -143,6 +143,21 @@ async function showPanel(req, res, next) {
     });
     const allGroups = Object.values(groupsMap);
 
+    let attendancePoints = 15;
+    try {
+      const [attSettings] = await pool.query("SELECT value FROM settings WHERE `key` = 'attendance_points'");
+      if (attSettings.length > 0) {
+        attendancePoints = parseInt(attSettings[0].value, 10) || 15;
+      } else {
+        const [sessPts] = await pool.query("SELECT points FROM sessions WHERE points IS NOT NULL LIMIT 1");
+        if (sessPts.length > 0 && sessPts[0].points != null) {
+          attendancePoints = sessPts[0].points;
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching attendance points setting:", e);
+    }
+
     res.render("supervisor-panel", {
       pageTitle: "لوحة المشرفين",
       activeNav: "supervisor",
@@ -155,6 +170,7 @@ async function showPanel(req, res, next) {
       scoresVisible,
       allGroups,
       currentSessionId: currentSession ? currentSession.id : null,
+      attendancePoints,
     });
   } catch (err) {
     next(err);
@@ -646,11 +662,19 @@ module.exports.updateSessionPoints = async (req, res, next) => {
     const pool = require("../config/db");
     const { sessionId, points } = req.body;
     const pts = parseInt(points, 10);
-    if (!sessionId || isNaN(pts) || pts < 0) {
+    if (isNaN(pts) || pts < 0) {
       return res.status(400).json({ success: false, message: "بيانات غير صالحة" });
     }
-    await pool.query("UPDATE sessions SET points = ? WHERE id = ?", [pts, sessionId]);
-    res.json({ success: true, message: "تم تحديث نقاط الجلسة بنجاح" });
+    if (sessionId) {
+      await pool.query("UPDATE sessions SET points = ? WHERE id = ?", [pts, sessionId]);
+    } else {
+      await pool.query("UPDATE sessions SET points = ?", [pts]);
+      await pool.query(
+        "INSERT INTO settings (`key`, value) VALUES ('attendance_points', ?) ON DUPLICATE KEY UPDATE value = ?",
+        [pts.toString(), pts.toString()]
+      );
+    }
+    res.json({ success: true, message: "تم حفظ وتطبيق نقاط الحضور على جميع الأيام بنجاح" });
   } catch (err) {
     next(err);
   }

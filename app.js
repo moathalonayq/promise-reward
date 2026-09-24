@@ -130,6 +130,12 @@ const pool = require("./config/db");
       console.error("Auto-migration sessions points error:", err);
     }
   }
+
+  try {
+    await pool.query("INSERT IGNORE INTO settings (`key`, value) VALUES ('attendance_points', '15')");
+  } catch (err) {
+    // ignore
+  }
 })();
 
 app.set("trust proxy", 1);

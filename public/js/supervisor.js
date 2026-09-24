@@ -1003,37 +1003,37 @@ function printSingleBarcode(student) {
   win.document.body.appendChild(script);
 }
 
-  
-  // Attendance Points Logic (All Days)
-  const sessionPointsAmount = document.getElementById("sessionPointsAmount");
-  const sessionPointsForm = document.getElementById("sessionPointsForm");
-  
-  if (sessionPointsAmount && sessionPointsForm) {
-    sessionPointsForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const msg = document.getElementById("sessionPointsMsg");
-      const points = sessionPointsAmount.value;
-      if (points === "") {
-        showMsg(msg, "الرجاء تحديد عدد النقاط", "error");
-        return;
+
+// Attendance Points Logic (All Days)
+const sessionPointsAmount = document.getElementById("sessionPointsAmount");
+const sessionPointsForm = document.getElementById("sessionPointsForm");
+
+if (sessionPointsAmount && sessionPointsForm) {
+  sessionPointsForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById("sessionPointsMsg");
+    const points = sessionPointsAmount.value;
+    if (points === "") {
+      showMsg(msg, "الرجاء تحديد عدد النقاط", "error");
+      return;
+    }
+    const btn = document.getElementById("saveSessionPointsBtn");
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/supervisor/session-points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ points })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showMsg(msg, data.message || "تم حفظ وتطبيق نقاط الحضور على جميع الأيام بنجاح", "success");
+      } else {
+        showMsg(msg, data.message || "حدث خطأ", "error");
       }
-      const btn = document.getElementById("saveSessionPointsBtn");
-      btn.disabled = true;
-      try {
-        const res = await fetch("/api/supervisor/session-points", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ points })
-        });
-        const data = await res.json();
-        if (data.success) {
-          showMsg(msg, data.message || "تم حفظ وتطبيق نقاط الحضور على جميع الأيام بنجاح", "success");
-        } else {
-          showMsg(msg, data.message || "حدث خطأ", "error");
-        }
-      } catch (err) {
-        showMsg(msg, "خطأ في الاتصال", "error");
-      }
-      btn.disabled = false;
-    });
-  }
+    } catch (err) {
+      showMsg(msg, "خطأ في الاتصال", "error");
+    }
+    btn.disabled = false;
+  });
+}

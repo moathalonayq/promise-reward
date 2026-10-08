@@ -46,9 +46,9 @@ const pool = require("./config/db");
     `);
 
     const megaGroups = [
-      ["العطاء", 0, 0, 0],
-      ["البناء", 0, 0, 0],
-      ["الإخاء", 0, 0, 0]
+      ["الشموخ", 0, 0, 0],
+      ["الشيوخ", 0, 0, 0],
+      ["المعالي", 0, 0, 0]
     ];
 
     for (const mg of megaGroups) {
@@ -57,7 +57,7 @@ const pool = require("./config/db");
         mg
       );
     }
-    console.log("Auto-migration: Mega groups setup complete");
+    console.log("Auto-migration: New mega groups setup complete");
   } catch (err) {
     console.error("Auto-migration mega groups error:", err);
   }
